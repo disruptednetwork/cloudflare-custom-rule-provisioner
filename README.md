@@ -25,12 +25,13 @@ A Cloudflare Worker that provides a user-friendly web interface to add multiple 
 
 ## Installation
 
-1. Clone or navigate to this directory:
+1. Clone this repository:
 ```bash
-cd custom-rule-provision
+git clone https://github.com/disruptednetwork/cloudflare-custom-rule-provisioner.git
+cd cloudflare-custom-rule-provisioner
 ```
 
-2. Install dependencies (already done during project creation):
+2. Install dependencies:
 ```bash
 npm install
 ```
