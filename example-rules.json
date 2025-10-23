@@ -1,0 +1,22 @@
+[
+  {
+    "action": "block",
+    "description": "Block requests with low WAF score",
+    "expression": "(cf.waf.score lt 20)"
+  },
+  {
+    "action": "block",
+    "description": "Block specific countries",
+    "expression": "(ip.src.country eq \"XX\") or (ip.src.country eq \"YY\") or (ip.src.country eq \"ZZ\")"
+  },
+  {
+    "action": "managed_challenge",
+    "description": "Challenge suspicious user agents",
+    "expression": "(http.user_agent contains \"bot\") and not (cf.client.bot)"
+  },
+  {
+    "action": "log",
+    "description": "Log requests from specific ASN",
+    "expression": "(ip.geoip.asnum eq 12345)"
+  }
+]
