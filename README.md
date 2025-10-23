@@ -97,8 +97,9 @@ Deploy to Cloudflare Workers:
 npm run deploy
 ```
 
-After deployment, your worker will be available at:
-`https://custom-rule-provision.YOUR_SUBDOMAIN.workers.dev`
+After deployment, Wrangler will display your worker URL. It will typically be:
+- `https://custom-rule-provision.YOUR_SUBDOMAIN.workers.dev` (if using workers.dev)
+- Or your custom domain if you've configured one
 
 ## Using the Web Interface
 
