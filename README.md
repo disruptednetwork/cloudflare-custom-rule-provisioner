@@ -220,32 +220,26 @@ Adds WAF rules to a zone
 ## Project Structure
 
 ```
-custom-rule-provision/
+cloudflare-custom-rule-provisioner/
 ├── src/
 │   └── index.ts          # Main worker code
-├── test/
-│   └── index.spec.ts     # Tests
+├── example-rules.json    # Sample WAF rules
 ├── wrangler.jsonc        # Wrangler configuration
 ├── package.json          # Project dependencies
 ├── tsconfig.json         # TypeScript configuration
-└── README.md            # This file
+└── README.md             # This file
 ```
 
 ## Development
 
 ### Type Generation
 
-Regenerate TypeScript types for environment bindings:
+If you modify `wrangler.jsonc` (e.g., add environment variables or bindings), regenerate TypeScript types:
 ```bash
 npm run cf-typegen
 ```
 
-### Testing
-
-Run tests:
-```bash
-npm test
-```
+This updates `worker-configuration.d.ts` with the latest type definitions for your Worker environment.
 
 ## Troubleshooting
 
