@@ -1,9 +1,10 @@
 # Cloudflare Custom WAF Rule Provisioner
 
-A Cloudflare Worker that provides a user-friendly web interface to add multiple custom WAF (Web Application Firewall) rules to a specified Cloudflare zone.
+A Cloudflare Worker that provides a user-friendly web interface to manage custom WAF (Web Application Firewall) rules for your Cloudflare zones. Add and delete rules with ease through an intuitive tabbed interface.
 
 ## Features
 
+### Add Rules
 - **Web-based UI**: Simple, beautiful interface for adding WAF rules
 - **Flexible Token Options**: Use secret (production) or paste token (testing)
 - **Multi-Zone Support**: Add the same rules to multiple zones at once
@@ -12,8 +13,19 @@ A Cloudflare Worker that provides a user-friendly web interface to add multiple 
 - **Sequential Processing**: Adds rules one at a time (as required by Cloudflare API)
 - **Real-time Progress Tracking**: Visual progress updates for each zone being processed
 - **Verification**: Automatically verifies rules were added successfully
+
+### Delete Rules
+- **Rule Discovery**: Load and view all existing custom WAF rules in a zone
+- **Multi-Select Deletion**: Select multiple rules to delete at once
+- **Confirmation Modal**: Preview rules before deletion with "cannot be undone" warning
+- **Smart Selection**: Select All / Deselect All functionality
+- **Live Updates**: Deleted rules disappear from the UI immediately
+- **Progress Tracking**: Real-time feedback during deletion process
+
+### General
 - **Error Handling**: Comprehensive error handling with detailed feedback
 - **TypeScript**: Fully typed for better development experience
+- **Responsive Design**: Works on desktop and mobile devices
 
 ## Prerequisites
 
@@ -103,6 +115,10 @@ After deployment, Wrangler will display your worker URL. It will typically be:
 
 ## Using the Web Interface
 
+The interface has two tabs: **Add Rules** and **Delete Rules**.
+
+### Add Rules Tab
+
 1. Open the worker URL in your browser
 2. Choose your **API Token Source**:
    - **Use Secret**: Uses the token configured via `wrangler secret put` (default, recommended)
@@ -125,9 +141,33 @@ After deployment, Wrangler will display your worker URL. It will typically be:
 ]
 ```
 
-4. Click **Add WAF Rules**
-5. Wait for the process to complete
-6. Review the results, including verification of added rules
+5. Click **Add WAF Rules**
+6. Wait for the process to complete
+7. Review the results, including verification of added rules
+
+### Delete Rules Tab
+
+1. Switch to the **Delete Rules** tab
+2. Choose your **API Token Source** (same options as Add Rules)
+3. Enter your **Zone ID** (single zone only)
+4. Click **Load Rules** to fetch all existing custom WAF rules
+5. Review the loaded rules - each shows:
+   - Description
+   - Action (block, challenge, etc.)
+   - Expression
+   - Rule ID
+6. Select the rules you want to delete:
+   - Check individual rule checkboxes
+   - Or use **Select All** / **Deselect All** buttons
+7. Click **Delete Selected Rules (X)** where X is the count
+8. Review the confirmation modal showing:
+   - Count of rules to be deleted
+   - Preview of each rule
+   - Warning: "This action cannot be undone"
+9. Click **Delete Rules** to confirm, or **Cancel** to abort
+10. Watch the deletion progress and review results
+
+**Note**: Deleted rules are removed one at a time as required by Cloudflare's API. Successfully deleted rules disappear from the list immediately.
 
 ## Rule Format
 
@@ -211,11 +251,79 @@ Adds WAF rules to a zone
 }
 ```
 
+### `POST /api/list-rules`
+Lists all custom WAF rules in a zone
+
+**Request Body:**
+```json
+{
+  "zoneId": "your-zone-id",
+  "apiToken": "optional-if-using-secret"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "rulesetId": "ruleset-id",
+  "rules": [
+    {
+      "id": "rule-id",
+      "action": "block",
+      "description": "Rule description",
+      "expression": "filter expression"
+    }
+  ],
+  "totalRules": 1
+}
+```
+
+### `POST /api/delete-rules`
+Deletes multiple WAF rules from a zone
+
+**Request Body:**
+```json
+{
+  "zoneId": "your-zone-id",
+  "rulesetId": "ruleset-id",
+  "ruleIds": ["rule-id-1", "rule-id-2"],
+  "apiToken": "optional-if-using-secret"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "deletedCount": 2,
+  "totalCount": 2
+}
+```
+
+**Partial Success Response (HTTP 207):**
+```json
+{
+  "success": false,
+  "deletedCount": 1,
+  "totalCount": 2,
+  "errors": ["Rule rule-id-2: Failed to delete rule: 404 Not Found"]
+}
+```
+
 ## How It Works
 
+### Adding Rules
 1. **Get Ruleset ID**: Makes a GET request to `/zones/{zoneId}/rulesets` to find the custom firewall ruleset
 2. **Add Rules**: Iterates through the rules array and makes a POST request for each rule to `/zones/{zoneId}/rulesets/{rulesetId}/rules`
 3. **Verify**: Makes a GET request to `/zones/{zoneId}/rulesets/{rulesetId}` to verify the rules were added successfully
+
+### Deleting Rules
+1. **List Rules**: Makes a GET request to `/zones/{zoneId}/rulesets/{rulesetId}` to fetch all rules
+2. **Display**: Shows each rule with checkbox for selection
+3. **Confirm**: User reviews selected rules in confirmation modal
+4. **Delete**: Iterates through selected rule IDs and makes a DELETE request for each rule to `/zones/{zoneId}/rulesets/{rulesetId}/rules/{ruleId}`
+5. **Update UI**: Removes successfully deleted rules from the display
 
 ## Project Structure
 
